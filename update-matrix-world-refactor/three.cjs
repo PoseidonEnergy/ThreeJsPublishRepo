@@ -13452,7 +13452,9 @@ class Layers {
 
 let _object3DId = 0;
 
-console.log( '(special 2)...' );
+let _respectMatrixAutoUpdateFlag = false;
+
+console.log( '(special 3)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14729,44 +14731,15 @@ class Object3D extends EventDispatcher {
 	 */
 	_autoEnsureMatrices( force ) {
 
-		if ( this.matrixAutoUpdate ) {
+		_respectMatrixAutoUpdateFlag = true;
 
-			// updateMatrix() will only set matrixWorldNeedsUpdate = true
-			// if a change was detected after updating.
+		try {
 
-			this.updateMatrix();
+			this.ensureMatrices( force );
 
-			window._logging && console.log( 'calculating local matrix (special)...' );
+		} finally {
 
-		} else {
-
-			window._logging && console.log( 'skipped local matrix (special)...' );
-
-		}
-
-		let worldMatrixChanged = false;
-
-		if ( ( this.matrixWorldNeedsUpdate || force ) && this.matrixWorldAutoUpdate ) {
-
-			window._logging && console.log( 'calculating world matrix (special)...' );
-
-			worldMatrixChanged = this.updateMatrixWorld( true, false, false );
-
-			this.matrixWorldNeedsUpdate = false;
-
-		} else {
-
-			window._logging && console.log( 'skipped world matrix (special)...' );
-
-		}
-
-		const children = this.children;
-
-		for ( let i = 0, l = children.length; i < l; i ++ ) {
-
-			const child = children[ i ];
-
-			child._autoEnsureMatrices( worldMatrixChanged || force );
+			_respectMatrixAutoUpdateFlag = false;
 
 		}
 
@@ -14793,7 +14766,7 @@ class Object3D extends EventDispatcher {
 
 		}
 
-		if ( this.matrixAutoUpdate || true ) {
+		if ( this.matrixAutoUpdate || ! _respectMatrixAutoUpdateFlag ) {
 
 			// updateMatrix() will only set matrixWorldNeedsUpdate = true
 			// if a change was detected after updating.
@@ -14802,17 +14775,25 @@ class Object3D extends EventDispatcher {
 
 			window._logging && console.log( 'calculating local matrix...' );
 
+		} else {
+
+			window._logging && console.log( 'skipped local matrix (special)...' );
+
 		}
 
 		let worldMatrixChanged = false;
 
-		if ( ( this.matrixWorldNeedsUpdate || force ) && ( this.matrixWorldAutoUpdate || true ) ) {
+		if ( ( this.matrixWorldNeedsUpdate || force ) && ( this.matrixWorldAutoUpdate || ! _respectMatrixAutoUpdateFlag ) ) {
 
 			window._logging && console.log( 'calculating world matrix...' );
 
 			worldMatrixChanged = this.updateMatrixWorld( true, false, false );
 
 			this.matrixWorldNeedsUpdate = false;
+
+		} else {
+
+			window._logging && console.log( 'skipped world matrix (special)...' );
 
 		}
 
