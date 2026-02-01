@@ -14769,7 +14769,7 @@ class Object3D extends EventDispatcher {
 
 			this.updateMatrix();
 
-			console.log( 'calculating local matrix...' );
+			window._logging && console.log( 'calculating local matrix...' );
 
 		}
 
@@ -14777,7 +14777,7 @@ class Object3D extends EventDispatcher {
 
 		if ( ( this.matrixWorldNeedsUpdate || force ) && ( this.matrixWorldAutoUpdate || ! _respectMatrixAutoUpdateFlag ) ) {
 
-			console.log( 'calculating world matrix...' );
+			window._logging && console.log( 'calculating world matrix...' );
 
 			worldMatrixChanged = this.updateMatrixWorld( true, false, false );
 
