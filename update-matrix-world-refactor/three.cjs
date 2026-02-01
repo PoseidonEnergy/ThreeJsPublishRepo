@@ -13452,6 +13452,8 @@ class Layers {
 
 let _object3DId = 0;
 
+console.log( '(special 1)...' );
+
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
 const _m1$3 = /*@__PURE__*/ new Matrix4();
@@ -14732,7 +14734,7 @@ class Object3D extends EventDispatcher {
 
 			this.updateMatrix();
 
-			window._logging && console.log( 'calculating local matrix...' );
+			window._logging && console.log( 'calculating local matrix (special)...' );
 
 		}
 
@@ -14740,7 +14742,7 @@ class Object3D extends EventDispatcher {
 
 		if ( ( this.matrixWorldNeedsUpdate || force ) && this.matrixWorldAutoUpdate ) {
 
-			window._logging && console.log( 'calculating world matrix...' );
+			window._logging && console.log( 'calculating world matrix (special)...' );
 
 			worldMatrixChanged = this.updateMatrixWorld( true, false, false );
 
