@@ -14679,15 +14679,19 @@ class Object3D extends EventDispatcher {
 
 			}
 
-			if ( this._lastMatrixWorld == null ) {
+			if ( _respectMatrixAutoUpdateFlag ) {
 
-				// lazy-load this._lastMatrixWorld
+				worldMatrixChanged = true;
 
-				this._lastMatrixWorld = new Matrix4();
+			} else if ( ! this.matrixWorld.equals( this._lastMatrixWorld ) ) {
 
-			}
+				if ( this._lastMatrixWorld == null ) {
 
-			if ( _respectMatrixAutoUpdateFlag || ! this.matrixWorld.equals( this._lastMatrixWorld ) ) {
+					// lazy-load this._lastMatrixWorld
+
+					this._lastMatrixWorld = new Matrix4();
+
+				}
 
 				this._lastMatrixWorld.copy( this.matrixWorld );
 
