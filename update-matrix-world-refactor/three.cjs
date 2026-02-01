@@ -14689,7 +14689,7 @@ class Object3D extends EventDispatcher {
 
 			}
 
-			if ( ! this.matrixWorld.equals( this._lastMatrixWorld ) ) {
+			if ( _respectMatrixAutoUpdateFlag || ! this.matrixWorld.equals( this._lastMatrixWorld ) ) {
 
 				this._lastMatrixWorld.copy( this.matrixWorld );
 
