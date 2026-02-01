@@ -14775,6 +14775,8 @@ class Object3D extends EventDispatcher {
 
 		if ( ( this.matrixWorldNeedsUpdate || force ) && ( this.matrixWorldAutoUpdate || ! _respectMatrixAutoUpdateFlag ) ) {
 
+			console.log( 'calculating world matrix...' );
+
 			worldMatrixChanged = this.updateMatrixWorld( true, false, false );
 
 			this.matrixWorldNeedsUpdate = false;
