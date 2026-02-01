@@ -14769,7 +14769,7 @@ class Object3D extends EventDispatcher {
 
 			this.updateMatrix();
 
-			console.log( 'calculating world matrix...' );
+			console.log( 'calculating local matrix...' );
 
 		}
 
