@@ -13452,7 +13452,7 @@ class Layers {
 
 let _object3DId = 0;
 
-console.log( '(special 1)...' );
+console.log( '(special 2)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14707,7 +14707,9 @@ class Object3D extends EventDispatcher {
 
 			for ( let i = 0, l = children.length; i < l; i ++ ) {
 
-				children[ i ].updateMatrixWorld( worldMatrixChanged || force );
+				const child = children[ i ];
+
+				child[ i ].updateMatrixWorld( worldMatrixChanged || force );
 
 			}
 
@@ -14736,6 +14738,10 @@ class Object3D extends EventDispatcher {
 
 			window._logging && console.log( 'calculating local matrix (special)...' );
 
+		} else {
+
+			window._logging && console.log( 'skipped local matrix (special)...' );
+
 		}
 
 		let worldMatrixChanged = false;
@@ -14748,13 +14754,19 @@ class Object3D extends EventDispatcher {
 
 			this.matrixWorldNeedsUpdate = false;
 
+		} else {
+
+			window._logging && console.log( 'skipped world matrix (special)...' );
+
 		}
 
 		const children = this.children;
 
 		for ( let i = 0, l = children.length; i < l; i ++ ) {
 
-			children[ i ]._autoEnsureMatrices( worldMatrixChanged || force );
+			const child = children[ i ];
+
+			child._autoEnsureMatrices( worldMatrixChanged || force );
 
 		}
 
@@ -14810,7 +14822,9 @@ class Object3D extends EventDispatcher {
 
 			for ( let i = 0, l = children.length; i < l; i ++ ) {
 
-				children[ i ].ensureMatrices( worldMatrixChanged || force );
+				const child = children[ i ];
+
+				child.ensureMatrices( worldMatrixChanged || force );
 
 			}
 
