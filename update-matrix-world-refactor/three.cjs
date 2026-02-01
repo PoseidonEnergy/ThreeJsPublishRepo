@@ -14735,15 +14735,9 @@ class Object3D extends EventDispatcher {
 
 		_respectMatrixAutoUpdateFlag = true;
 
-		try {
+		this.ensureMatrices( force, ensureParents, ensureChildren );
 
-			this.ensureMatrices( force, ensureParents, ensureChildren );
-
-		} finally {
-
-			_respectMatrixAutoUpdateFlag = false;
-
-		}
+		_respectMatrixAutoUpdateFlag = false;
 
 	}
 
