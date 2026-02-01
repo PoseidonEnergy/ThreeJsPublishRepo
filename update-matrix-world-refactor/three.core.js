@@ -14769,6 +14769,8 @@ class Object3D extends EventDispatcher {
 
 			this.updateMatrix();
 
+			console.log( 'calculating world matrix...' );
+
 		}
 
 		let worldMatrixChanged = false;
