@@ -13450,6 +13450,8 @@ class Layers {
 
 let _object3DId = 0;
 
+let _respectMatrixAutoUpdateFlag = false;
+
 console.log( '(special 4)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
@@ -14722,51 +14724,20 @@ class Object3D extends EventDispatcher {
 	 * should only be called internally. It is exactly the same as
 	 * {@link Object3D#ensureMatrices}, except that it respects the
 	 * {@link Object3D#matrixAutoUpdate} and {@link Object3D#matrixWorldAutoUpdate} flags.
-	 * @param {boolean?} force - (optional) Forces an update of the world matrix, even if
-	 * {@link Object3D#matrixWorldNeedsUpdate} is `false`.
 	 */
-	_autoEnsureMatrices( force ) {
+	_autoEnsureMatrices() {
 
 		window._logging && console.log( '_autoEnsureMatrices', ( new Error().stack ) );
 
-		if ( this.matrixAutoUpdate ) {
+		_respectMatrixAutoUpdateFlag = true;
 
-			// updateMatrix() will only set matrixWorldNeedsUpdate = true
-			// if a change was detected after updating.
+		try {
 
-			this.updateMatrix();
+			this.ensureMatrices();
 
-			window._logging && console.log( 'calculating local matrix...' );
+		} finally {
 
-		} else {
-
-			window._logging && console.log( 'skipped local matrix (special)...' );
-
-		}
-
-		let worldMatrixChanged = false;
-
-		if ( ( this.matrixWorldNeedsUpdate || force ) && this.matrixWorldAutoUpdate ) {
-
-			window._logging && console.log( 'calculating world matrix...' );
-
-			worldMatrixChanged = this.updateMatrixWorld( true, false, false );
-
-			this.matrixWorldNeedsUpdate = false;
-
-		} else {
-
-			window._logging && console.log( 'skipped world matrix (special)...' );
-
-		}
-
-		const children = this.children;
-
-		for ( let i = 0, l = children.length; i < l; i ++ ) {
-
-			const child = children[ i ];
-
-			child._autoEnsureMatrices( worldMatrixChanged || force );
+			_respectMatrixAutoUpdateFlag = false;
 
 		}
 
@@ -14785,6 +14756,59 @@ class Object3D extends EventDispatcher {
 	 */
 	ensureMatrices( force, ensureParents = false, ensureChildren = true ) {
 
+		if ( _respectMatrixAutoUpdateFlag ) {
+
+			if ( this.matrixAutoUpdate ) {
+
+				// updateMatrix() will only set matrixWorldNeedsUpdate = true
+				// if a change was detected after updating.
+
+				this.updateMatrix();
+
+				window._logging && console.log( 'calculating local matrix (special)...' );
+
+			} else {
+
+				window._logging && console.log( 'skipped local matrix (special)...' );
+
+			}
+
+			let worldMatrixChanged = false;
+
+			if ( this.matrixWorldNeedsUpdate && this.matrixWorldAutoUpdate ) {
+
+				window._logging && console.log( 'calculating world matrix (special)...' );
+
+				worldMatrixChanged = this.updateMatrixWorld( true, false, false );
+
+				this.matrixWorldNeedsUpdate = false;
+
+			} else {
+
+				window._logging && console.log( 'skipped world matrix (special)...' );
+
+			}
+
+			const children = this.children;
+
+			for ( let i = 0, l = children.length; i < l; i ++ ) {
+
+				const child = children[ i ];
+
+				if ( worldMatrixChanged ) {
+
+					child.matrixWorldNeedsUpdate = true;
+
+				}
+
+				child.ensureMatrices();
+
+			}
+
+			return;
+
+		}
+
 		window._logging && console.log( 'ensureMatrices', ( new Error().stack ) );
 
 		const parent = this.parent;
@@ -14795,20 +14819,16 @@ class Object3D extends EventDispatcher {
 
 		}
 
-		if ( this.matrixAutoUpdate || true ) {
+		// updateMatrix() will only set matrixWorldNeedsUpdate = true
+		// if a change was detected after updating.
 
-			// updateMatrix() will only set matrixWorldNeedsUpdate = true
-			// if a change was detected after updating.
+		this.updateMatrix();
 
-			this.updateMatrix();
-
-			window._logging && console.log( 'calculating local matrix...' );
-
-		}
+		window._logging && console.log( 'calculating local matrix...' );
 
 		let worldMatrixChanged = false;
 
-		if ( ( this.matrixWorldNeedsUpdate || force ) && ( this.matrixWorldAutoUpdate || true ) ) {
+		if ( this.matrixWorldNeedsUpdate || force ) {
 
 			window._logging && console.log( 'calculating world matrix...' );
 
@@ -14818,7 +14838,7 @@ class Object3D extends EventDispatcher {
 
 		} else {
 
-			window._logging && console.log( 'skipped world matrix (special)...' );
+			window._logging && console.log( 'skipped world matrix...' );
 
 		}
 
@@ -22062,9 +22082,9 @@ class Camera extends Object3D {
 
 	}
 
-	ensureMatrices( force, updateParents, updateChildren ) {
+	updateMatrixWorld( force, updateParents, updateChildren ) {
 
-		super.ensureMatrices( force, updateParents, updateChildren );
+		super.updateMatrixWorld( force, updateParents, updateChildren );
 
 		// exclude scale from view matrix to be glTF conform
 
