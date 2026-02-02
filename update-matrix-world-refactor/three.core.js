@@ -14731,7 +14731,7 @@ class Object3D extends EventDispatcher {
 
 		_respectMatrixAutoUpdateFlag = true;
 
-		this.ensureMatrices( false );
+		this.ensureMatrices( false, false, true );
 
 		_respectMatrixAutoUpdateFlag = false;
 
@@ -14772,7 +14772,7 @@ class Object3D extends EventDispatcher {
 
 				const child = children[ i ];
 
-				child.ensureMatrices( force );
+				child.ensureMatrices( force, false, true );
 
 			}
 
