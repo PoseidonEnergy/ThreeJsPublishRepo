@@ -58624,9 +58624,9 @@ class Renderer {
 
 		//
 
-		scene._autoEnsureMatrices();
+		scene.autoEnsureMatrices();
 
-		if ( camera.parent === null ) camera._autoEnsureMatrices();
+		if ( camera.parent === null ) camera.autoEnsureMatrices();
 
 		if ( xr.enabled === true && xr.isPresenting === true ) {
 

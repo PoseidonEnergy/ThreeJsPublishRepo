@@ -14726,7 +14726,7 @@ class Object3D extends EventDispatcher {
 	 * {@link Object3D#matrixAutoUpdate} and {@link Object3D#matrixWorldAutoUpdate} flags
 	 * and updates the current node and its descendants only (no parents).
 	 */
-	_autoEnsureMatrices( force ) {
+	autoEnsureMatrices( force ) {
 
 		if ( this.matrixAutoUpdate ) {
 
@@ -14762,7 +14762,7 @@ class Object3D extends EventDispatcher {
 
 			const child = children[ i ];
 
-			child._autoEnsureMatrices( force );
+			child.autoEnsureMatrices( force );
 
 		}
 

@@ -14728,7 +14728,7 @@ class Object3D extends EventDispatcher {
 	 * {@link Object3D#matrixAutoUpdate} and {@link Object3D#matrixWorldAutoUpdate} flags
 	 * and updates the current node and its descendants only (no parents).
 	 */
-	_autoEnsureMatrices( force ) {
+	autoEnsureMatrices( force ) {
 
 		if ( this.matrixAutoUpdate ) {
 
@@ -14764,7 +14764,7 @@ class Object3D extends EventDispatcher {
 
 			const child = children[ i ];
 
-			child._autoEnsureMatrices( force );
+			child.autoEnsureMatrices( force );
 
 		}
 
@@ -76922,11 +76922,11 @@ class WebGLRenderer {
 
 			// update scene graph
 
-			scene._autoEnsureMatrices();
+			scene.autoEnsureMatrices();
 
 			// update camera matrices and frustum
 
-			if ( camera.parent === null ) camera._autoEnsureMatrices();
+			if ( camera.parent === null ) camera.autoEnsureMatrices();
 
 			if ( xr.enabled === true && xr.isPresenting === true && ( output === null || output.isCompositing() === false ) ) {
 

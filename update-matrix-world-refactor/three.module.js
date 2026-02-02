@@ -17236,11 +17236,11 @@ class WebGLRenderer {
 
 			// update scene graph
 
-			scene._autoEnsureMatrices();
+			scene.autoEnsureMatrices();
 
 			// update camera matrices and frustum
 
-			if ( camera.parent === null ) camera._autoEnsureMatrices();
+			if ( camera.parent === null ) camera.autoEnsureMatrices();
 
 			if ( xr.enabled === true && xr.isPresenting === true && ( output === null || output.isCompositing() === false ) ) {
 
