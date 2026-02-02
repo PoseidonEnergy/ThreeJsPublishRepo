@@ -13452,7 +13452,7 @@ class Layers {
 
 let _object3DId = 0;
 
-console.log( '(special 20)...' );
+console.log( '(special 22)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14722,39 +14722,27 @@ class Object3D extends EventDispatcher {
 	}
 
 	/**
-	 * @desc Internal "auto" version of {@link Object3D#ensureMatrices}. This method
-	 * should only be called internally. It is exactly the same as
-	 * {@link Object3D#ensureMatrices}, except that it respects the
-	 * {@link Object3D#matrixAutoUpdate} and {@link Object3D#matrixWorldAutoUpdate} flags
-	 * and updates the current node and its descendants only (no parents).
+	 * @desc Variant of {@link Object3D#ensureMatrices} that is exactly the same,
+	 * except that it respects the {@link Object3D#matrixAutoUpdate} and
+	 * {@link Object3D#matrixWorldAutoUpdate} flags, and cannot update parents.
+	 * This method is intended to only ever be called internally by
+	 * {@link WebGLRenderer#render} and {@link Renderer#render}.
+	 * It ensures that the local and world matrices of the current object
+	 * and all of its descendants are updated, but only if their respective
+	 * {@link Object3D#matrixAutoUpdate} and {@link Object3D#matrixWorldAutoUpdate}
+	 * flags are `true`.
 	 */
 	autoEnsureMatrices( force ) {
 
-		if ( this.matrixAutoUpdate ) this.updateMatrix();
+		this.matrixAutoUpdate && this.updateMatrix();
 
-		if ( this.matrixWorldNeedsUpdate || force ) {
+		if ( ( this.matrixWorldNeedsUpdate || force ) && this.matrixWorldAutoUpdate ) {
 
-			if ( this.matrixWorldAutoUpdate === true ) {
-
-				if ( this.parent === null ) {
-
-					this.matrixWorld.copy( this.matrix );
-
-				} else {
-
-					this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
-
-				}
-
-			}
+			force = this.updateMatrixWorld( true, false, false );
 
 			this.matrixWorldNeedsUpdate = false;
 
-			force = true;
-
 		}
-
-		// make sure descendants are updated if required
 
 		const children = this.children;
 
