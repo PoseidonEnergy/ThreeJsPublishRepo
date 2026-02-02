@@ -13450,7 +13450,7 @@ class Layers {
 
 let _object3DId = 0;
 
-console.log( '(special 16)...' );
+console.log( '(special 17)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14738,9 +14738,19 @@ class Object3D extends EventDispatcher {
 
 			if ( this.matrixWorldAutoUpdate ) {
 
-				force = this.updateMatrixWorld( true, false, false );
+				if ( this.parent === null ) {
+
+					this.matrixWorld.copy( this.matrix );
+
+				} else {
+
+					this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
+
+				}
 
 				this.matrixWorldNeedsUpdate = false;
+
+				force = true;
 
 			}
 
