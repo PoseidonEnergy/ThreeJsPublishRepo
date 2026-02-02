@@ -13452,7 +13452,7 @@ let _object3DId = 0;
 
 let _respectMatrixAutoUpdateFlag = false;
 
-console.log( '(special 10)...' );
+console.log( '(special 11)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14628,11 +14628,7 @@ class Object3D extends EventDispatcher {
 			// Only update the world matrix
 			// if the local matrix changed!
 
-			if ( ! _respectMatrixAutoUpdateFlag ) {
-
-				this.matrixWorldNeedsUpdate = true;
-
-			}
+			this.matrixWorldNeedsUpdate = true;
 
 			return true;
 
@@ -14756,15 +14752,9 @@ class Object3D extends EventDispatcher {
 
 		if ( _respectMatrixAutoUpdateFlag ) {
 
-			let localMatrixChanged = false;
+			this.matrixAutoUpdate && this.updateMatrix();
 
-			if ( this.matrixAutoUpdate ) {
-
-				localMatrixChanged = this.updateMatrix();
-
-			}
-
-			if ( ( this.matrixWorldNeedsUpdate || localMatrixChanged ) && this.matrixWorldAutoUpdate ) {
+			if ( this.matrixWorldNeedsUpdate && this.matrixWorldAutoUpdate ) {
 
 				force = this.updateMatrixWorld( true, false, false );
 
