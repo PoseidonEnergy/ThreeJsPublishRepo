@@ -13452,7 +13452,7 @@ class Layers {
 
 let _object3DId = 0;
 
-console.log( '(special 17)...' );
+console.log( '(special 18)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14750,11 +14750,11 @@ class Object3D extends EventDispatcher {
 
 				}
 
-				this.matrixWorldNeedsUpdate = false;
-
-				force = true;
-
 			}
+
+			this.matrixWorldNeedsUpdate = false;
+
+			force = true;
 
 		}
 
