@@ -13452,7 +13452,7 @@ let _object3DId = 0;
 
 let _respectMatrixAutoUpdateFlag = false;
 
-console.log( '(special 11)...' );
+console.log( '(special 12)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14752,7 +14752,11 @@ class Object3D extends EventDispatcher {
 
 		if ( _respectMatrixAutoUpdateFlag ) {
 
-			this.matrixAutoUpdate && this.updateMatrix();
+			if ( this.matrixAutoUpdate ) {
+
+				this.updateMatrix();
+
+			}
 
 			if ( this.matrixWorldNeedsUpdate && this.matrixWorldAutoUpdate ) {
 
