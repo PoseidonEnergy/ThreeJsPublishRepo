@@ -13450,9 +13450,7 @@ class Layers {
 
 let _object3DId = 0;
 
-let _respectMatrixAutoUpdateFlag = false;
-
-console.log( '(special 13)...' );
+console.log( '(special 15)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14655,13 +14653,13 @@ class Object3D extends EventDispatcher {
 
 		const parent = this.parent;
 
-		if ( updateParents === true && parent !== null ) {
+		if ( updateParents && parent !== null ) {
 
 			parent.updateMatrixWorld( force, true, false );
 
 		}
 
-		// Do NOT try to update the local matrix here.
+		// Do NOT update the local matrix here.
 		// Local matrix updating should be controllable by the user.
 		// This method should ONLY be used for updating the world matrix,
 		// as stated in the method name. If the user wants to also update
@@ -14725,15 +14723,34 @@ class Object3D extends EventDispatcher {
 	 * @desc Internal "auto" version of {@link Object3D#ensureMatrices}. This method
 	 * should only be called internally. It is exactly the same as
 	 * {@link Object3D#ensureMatrices}, except that it respects the
-	 * {@link Object3D#matrixAutoUpdate} and {@link Object3D#matrixWorldAutoUpdate} flags.
+	 * {@link Object3D#matrixAutoUpdate} and {@link Object3D#matrixWorldAutoUpdate} flags
+	 * and updates the current node and its descendants only (no parents).
 	 */
-	_autoEnsureMatrices() {
+	_autoEnsureMatrices( force ) {
 
-		_respectMatrixAutoUpdateFlag = true;
+		if ( this.matrixAutoUpdate ) {
 
-		this.ensureMatrices( false, false, true );
+			this.updateMatrix();
 
-		_respectMatrixAutoUpdateFlag = false;
+		}
+
+		if ( this.matrixWorldNeedsUpdate && this.matrixWorldAutoUpdate ) {
+
+			force = this.updateMatrixWorld( true, false, false );
+
+			this.matrixWorldNeedsUpdate = false;
+
+		}
+
+		const children = this.children;
+
+		for ( let i = 0, l = children.length; i < l; i ++ ) {
+
+			const child = children[ i ];
+
+			child._autoEnsureMatrices( force );
+
+		}
 
 	}
 
@@ -14750,39 +14767,9 @@ class Object3D extends EventDispatcher {
 	 */
 	ensureMatrices( force = false, ensureParents = false, ensureChildren = true ) {
 
-		if ( _respectMatrixAutoUpdateFlag ) {
-
-			if ( this.matrixAutoUpdate ) {
-
-				this.updateMatrix();
-
-			}
-
-			if ( this.matrixWorldNeedsUpdate && this.matrixWorldAutoUpdate ) {
-
-				force = this.updateMatrixWorld( true, false, false );
-
-				this.matrixWorldNeedsUpdate = false;
-
-			}
-
-			const children = this.children;
-
-			for ( let i = 0, l = children.length; i < l; i ++ ) {
-
-				const child = children[ i ];
-
-				child.ensureMatrices( force, false, true );
-
-			}
-
-			return;
-
-		}
-
 		const parent = this.parent;
 
-		if ( ensureParents === true && parent !== null ) {
+		if ( ensureParents && parent !== null ) {
 
 			parent.ensureMatrices( force, true, false );
 
@@ -14798,7 +14785,7 @@ class Object3D extends EventDispatcher {
 
 		}
 
-		if ( ensureChildren === true ) {
+		if ( ensureChildren ) {
 
 			const children = this.children;
 
