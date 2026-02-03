@@ -13450,7 +13450,7 @@ class Layers {
 
 let _object3DId = 0;
 
-console.log( '(special 31)...' );
+console.log( '(special 32)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14680,7 +14680,7 @@ class Object3D extends EventDispatcher {
 
 		if ( this.matrixAutoUpdate === true ) {
 
-			window._logging === true && console.log( 'updating local matrix...' );
+			// window._logging === true && console.log( 'updating local matrix...' );
 
 			this.updateMatrix();
 
@@ -14692,7 +14692,7 @@ class Object3D extends EventDispatcher {
 
 			if ( force !== true && this.matrix.equals( this._lastMatrixLocal ) !== true ) {
 
-				window._logging === true && console.log( 'local matrix changed...' );
+				// window._logging === true && console.log( 'local matrix changed...' );
 
 				force = true;
 
@@ -14704,7 +14704,7 @@ class Object3D extends EventDispatcher {
 
 		if ( force === true && this.matrixWorldAutoUpdate === true ) {
 
-			window._logging === true && console.log( 'updating world matrix...' );
+			// window._logging === true && console.log( 'updating world matrix...' );
 
 			this.updateMatrixWorld();
 
@@ -14716,7 +14716,7 @@ class Object3D extends EventDispatcher {
 
 			if ( force !== true && this.matrixWorld.equals( this._lastMatrixWorld ) !== true ) {
 
-				window._logging === true && console.log( 'world matrix changed...' );
+				// window._logging === true && console.log( 'world matrix changed...' );
 
 				force = true;
 
@@ -14726,7 +14726,7 @@ class Object3D extends EventDispatcher {
 
 		}
 
-		window._logging === true && console.log( `force: ${force}` );
+		// window._logging === true && console.log( `force: ${force}` );
 
 		const children = this.children;
 
