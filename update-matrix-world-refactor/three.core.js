@@ -13452,7 +13452,7 @@ let _object3DId = 0;
 
 let _respectMatrixAutoUpdateFlag = false;
 
-console.log( '(special 27)...' );
+console.log( '(special 28)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -14774,7 +14774,7 @@ class Object3D extends EventDispatcher {
 
 				const child = children[ i ];
 
-				child.ensureMatrices( force, false, updateLocal, updateWorld );
+				child.ensureMatrices( force, false, true, updateLocal, updateWorld );
 
 			}
 
