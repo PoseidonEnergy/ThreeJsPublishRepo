@@ -13452,7 +13452,7 @@ let _object3DId = 0;
 
 let _respectMatrixAutoUpdateFlag = false;
 
-console.log( '(special 25)...' );
+console.log( '(special 26)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
