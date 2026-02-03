@@ -13452,7 +13452,9 @@ class Layers {
 
 let _object3DId = 0;
 
-console.log( '(special 22)...' );
+let _respectMatrixAutoUpdateFlag = false;
+
+console.log( '(special 23)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -13831,7 +13833,7 @@ class Object3D extends EventDispatcher {
 
 		/**
 		 * Holds the last calculated local matrix to enable change detection
-		 * when calling {@link Object3D#updateMatrix}.
+		 * when calling {@link Object3D#ensureMatrices}.
 		 *
 		 * This object is lazy-loaded.
 		 *
@@ -13842,7 +13844,7 @@ class Object3D extends EventDispatcher {
 
 		/**
 		 * Holds the last calculated world matrix to enable change detection
-		 * when calling {@link Object3D#updateMatrixWorld}.
+		 * when calling {@link Object3D#ensureMatrices}.
 		 *
 		 * This object is lazy-loaded.
 		 *
@@ -13850,6 +13852,28 @@ class Object3D extends EventDispatcher {
 		 * @private
 		 */
 		this._lastMatrixWorld = null;
+
+		/**
+		 * Informs {@link Object3D#ensureMatrices} that the local matrix
+		 * has been recalculated and needs to be checked for changes.
+		 * This does not mean that the local matrix has changed. It only
+		 * indicates that the local matrix needs to be checked.
+		 *
+		 * @type {boolean}
+		 * @private
+		 */
+		this._checkMatrixLocal = false;
+
+		/**
+		 * Informs {@link Object3D#ensureMatrices} that the world matrix
+		 * has been recalculated and needs to be checked for changes.
+		 * This does not mean that the world matrix has changed. It only
+		 * indicates that the world matrix needs to be checked.
+		 *
+		 * @type {boolean}
+		 * @private
+		 */
+		this._checkMatrixWorld = false;
 
 	}
 
@@ -14591,10 +14615,13 @@ class Object3D extends EventDispatcher {
 	}
 
 	/**
-	 * @desc Updates the transformation matrix in local space by computing it from the current
-	 * position, rotation and scale values.
-	 * @return {boolean} Returns `true` if a change was detected between the local matrix values
-	 * pre- and post-update, or `false` if no changes were detected.
+	 * @desc Recalculates the local matrix on this object. If you want to override
+	 * the local matrix calculation, you should override this method.
+	 * @desc Note: {@link Object3D#ensureMatrices} will still be able to detect
+	 * matrix changes even if you override this method, so it's not required
+	 * that you set {@link Object3D#_checkMatrixLocal} to `true` in the override.
+	 * However, if you change the local matrix outside of this method, you
+	 * should set {@link Object3D#_checkMatrixLocal} to `true`.
 	 */
 	updateMatrix() {
 
@@ -14613,111 +14640,32 @@ class Object3D extends EventDispatcher {
 
 		}
 
-		if ( this._lastMatrixLocal == null ) {
-
-			// lazy-load this._lastMatrixLocal
-
-			this._lastMatrixLocal = new Matrix4();
-
-		}
-
-		if ( ! this.matrix.equals( this._lastMatrixLocal ) ) {
-
-			this._lastMatrixLocal.copy( this.matrix );
-
-			// Only update the world matrix
-			// if the local matrix changed!
-
-			this.matrixWorldNeedsUpdate = true;
-
-			return true;
-
-		}
-
-		return false;
+		this._checkMatrixLocal = true;
 
 	}
 
 	/**
-	 * @desc Updates ONLY the world matrix of the current object, and optionally all of its children
-	 * or ancestors. If you want to update both the local AND world matrices, use
-	 * {@link Object3D#ensureMatrices} instead.
-	 * @desc NOTE: By default, this does not update the world matrix if
-	 * {@link Object3D#matrixWorldNeedsUpdate} is `false`.
-	 * @param {boolean} force - Forces an update of the world matrix, even if
-	 * {@link Object3D#matrixWorldNeedsUpdate} is false.
-	 * @param {boolean?} updateParents - (optional) Whether ancestor nodes should be updated or not.
-	 * @param {boolean?} updateChildren - (optional) Whether descendant nodes should be updated or not.
-	 * @return {boolean} Returns `true` if a change was detected between the world matrix values
-	 * pre- and post-update, or `false` if no changes were detected.
+	 * @desc Recalculates the world matrix on this object. If you want to override
+	 * the world matrix calculation, you should override this method.
+	 * @desc Note: {@link Object3D#ensureMatrices} will still be able to detect
+	 * matrix changes even if you override this method, so it's not required
+	 * that you set {@link Object3D#_checkMatrixWorld} to `true` in the override.
+	 * However, if you change the world matrix outside of this method, you
+	 * should set {@link Object3D#_checkMatrixWorld} to `true`.
 	 */
-	updateMatrixWorld( force, updateParents = false, updateChildren = true ) {
+	updateMatrixWorld() {
 
-		const parent = this.parent;
+		if ( this.parent === null ) {
 
-		if ( updateParents && parent !== null ) {
+			this.matrixWorld.copy( this.matrix );
 
-			parent.updateMatrixWorld( force, true, false );
+		} else {
 
-		}
-
-		// Do NOT update the local matrix here.
-		// Local matrix updating should be controllable by the user.
-		// This method should ONLY be used for updating the world matrix,
-		// as stated in the method name. If the user wants to also update
-		// the local matrix, they should call ensureMatrices().
-
-		let worldMatrixChanged = false;
-
-		if ( this.matrixWorldNeedsUpdate || force ) {
-
-			if ( this.parent === null ) {
-
-				this.matrixWorld.copy( this.matrix );
-
-			} else {
-
-				this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
-
-			}
-
-			if ( this._lastMatrixWorld == null ) {
-
-				// lazy-load this._lastMatrixWorld
-
-				this._lastMatrixWorld = new Matrix4();
-
-			}
-
-			if ( ! this.matrixWorld.equals( this._lastMatrixWorld ) ) {
-
-				this._lastMatrixWorld.copy( this.matrixWorld );
-
-				worldMatrixChanged = true;
-
-				force = true;
-
-			}
-
-			this.matrixWorldNeedsUpdate = false;
+			this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
 
 		}
 
-		if ( updateChildren ) {
-
-			const children = this.children;
-
-			for ( let i = 0, l = children.length; i < l; i ++ ) {
-
-				const child = children[ i ];
-
-				child[ i ].updateMatrixWorld( force );
-
-			}
-
-		}
-
-		return worldMatrixChanged;
+		this._checkMatrixWorld = true;
 
 	}
 
@@ -14734,23 +14682,15 @@ class Object3D extends EventDispatcher {
 	 */
 	autoEnsureMatrices( force ) {
 
-		this.matrixAutoUpdate && this.updateMatrix();
+		_respectMatrixAutoUpdateFlag = true;
 
-		if ( ( this.matrixWorldNeedsUpdate || force ) && this.matrixWorldAutoUpdate ) {
+		try {
 
-			force = this.updateMatrixWorld( true, false, false );
+			this.ensureMatrices( force, false, true, true, true );
 
-			this.matrixWorldNeedsUpdate = false;
+		} finally {
 
-		}
-
-		const children = this.children;
-
-		for ( let i = 0, l = children.length; i < l; i ++ ) {
-
-			const child = children[ i ];
-
-			child.autoEnsureMatrices( force );
+			_respectMatrixAutoUpdateFlag = false;
 
 		}
 
@@ -14762,28 +14702,73 @@ class Object3D extends EventDispatcher {
 	 * {@link Object3D#updateMatrixWorld} instead.
 	 * @desc NOTE: By default, this does not update the world matrix if
 	 * {@link Object3D#matrixWorldNeedsUpdate} is `false` (only the local matrix will be updated).
-	 * @param {boolean?} force - (optional) Forces an update of the world matrix, even if
-	 * {@link Object3D#matrixWorldNeedsUpdate} is `false`.
+	 * @param {boolean?} force - (optional) Forces an update of this object's world matrix, even if
+	 * there were no change to this object's local matrix that would necessitate an update of the world matrix.
 	 * @param {boolean?} ensureParents - (optional) Whether ancestor nodes should be updated or not.
 	 * @param {boolean?} ensureChildren - (optional) Whether descendant nodes should be updated or not.
+	 * @param {boolean?} updateLocal - (optional) Whether local matrices should be updated.
+	 * @param {boolean?} updateWorld - (optional) Whether world matrices should be updated.
+	 * @return {number} `0` if no changes
 	 */
-	ensureMatrices( force = false, ensureParents = false, ensureChildren = true ) {
+	ensureMatrices( force = false, ensureParents = false, ensureChildren = true, updateLocal = true, updateWorld = true ) {
 
 		const parent = this.parent;
 
 		if ( ensureParents && parent !== null ) {
 
-			parent.ensureMatrices( force, true, false );
+			parent.ensureMatrices( force, true, false, updateLocal, updateWorld );
 
 		}
 
-		this.updateMatrix();
+		if ( updateLocal && ( ! _respectMatrixAutoUpdateFlag || this.matrixAutoUpdate ) ) {
 
-		if ( this.matrixWorldNeedsUpdate || force ) {
+			this.updateMatrix();
 
-			force = this.updateMatrixWorld( true, false, false ) || force;
+		}
 
-			this.matrixWorldNeedsUpdate = false;
+		if ( this._checkMatrixLocal ) {
+
+			this._checkMatrixLocal = false;
+
+			if ( this._lastMatrixLocal == null ) {
+
+				this._lastMatrixLocal = new Matrix4();
+
+			}
+
+			if ( ! force && ! this.matrix.equals( this._lastMatrixLocal ) ) {
+
+				force = true;
+
+			}
+
+			this._lastMatrixLocal.copy( this.matrix );
+
+		}
+
+		if ( force && updateWorld && ( ! _respectMatrixAutoUpdateFlag || this.matrixWorldAutoUpdate ) ) {
+
+			this.updateMatrixWorld();
+
+		}
+
+		if ( this._checkMatrixWorld ) {
+
+			this._checkMatrixWorld = false;
+
+			if ( this._lastMatrixWorld == null ) {
+
+				this._lastMatrixWorld = new Matrix4();
+
+			}
+
+			if ( ! force && ! this.matrixWorld.equals( this._lastMatrixWorld ) ) {
+
+				force = true;
+
+			}
+
+			this._lastMatrixWorld.copy( this.matrixWorld );
 
 		}
 
@@ -14793,60 +14778,7 @@ class Object3D extends EventDispatcher {
 
 			for ( let i = 0, l = children.length; i < l; i ++ ) {
 
-				const child = children[ i ];
-
-				child.ensureMatrices( force );
-
-			}
-
-		}
-
-	}
-
-	/**
-	 * An alternative version of {@link Object3D#ensureMatrices} with more control over the
-	 * update of ancestor and descendant nodes.
-	 *
-	 * @param {boolean} [updateParents=false] Whether ancestor nodes should be updated or not.
-	 * @param {boolean} [updateChildren=false] Whether descendant nodes should be updated or not.
-	 */
-	updateWorldMatrix( updateParents, updateChildren ) {
-
-		const parent = this.parent;
-
-		if ( updateParents === true && parent !== null ) {
-
-			parent.ensureMatrices( true, true, false );
-
-		}
-
-		if ( this.matrixAutoUpdate ) this.updateMatrix();
-
-		if ( this.matrixWorldAutoUpdate === true ) {
-
-			if ( this.parent === null ) {
-
-				this.matrixWorld.copy( this.matrix );
-
-			} else {
-
-				this.matrixWorld.multiplyMatrices( this.parent.matrixWorld, this.matrix );
-
-			}
-
-		}
-
-		// make sure descendants are updated
-
-		if ( updateChildren === true ) {
-
-			const children = this.children;
-
-			for ( let i = 0, l = children.length; i < l; i ++ ) {
-
-				const child = children[ i ];
-
-				child.ensureMatrices( true, false, true );
+				children[ i ].ensureMatrices( force, false, updateLocal, updateWorld );
 
 			}
 
@@ -22027,9 +21959,9 @@ class Camera extends Object3D {
 
 	}
 
-	updateMatrixWorld( force, updateParents, updateChildren ) {
+	updateMatrixWorld( force ) {
 
-		super.updateMatrixWorld( force, updateParents, updateChildren );
+		super.updateMatrixWorld( force );
 
 		// exclude scale from view matrix to be glTF conform
 
