@@ -13452,7 +13452,7 @@ let _object3DId = 0;
 
 let _respectMatrixAutoUpdateFlag = false;
 
-console.log( '(special 23)...' );
+console.log( '(special 24)...' );
 
 const _v1$4 = /*@__PURE__*/ new Vector3();
 const _q1 = /*@__PURE__*/ new Quaternion();
@@ -13838,7 +13838,7 @@ class Object3D extends EventDispatcher {
 		 * @type {?Matrix4}
 		 * @private
 		 */
-		this._lastMatrixLocal = null;
+		this._lastMatrixLocal = new Matrix4();
 
 		/**
 		 * Holds the last calculated world matrix to enable change detection
@@ -13849,7 +13849,7 @@ class Object3D extends EventDispatcher {
 		 * @type {?Matrix4}
 		 * @private
 		 */
-		this._lastMatrixWorld = null;
+		this._lastMatrixWorld = new Matrix4();
 
 		/**
 		 * Informs {@link Object3D#ensureMatrices} that the local matrix
@@ -14728,12 +14728,6 @@ class Object3D extends EventDispatcher {
 
 			this._checkMatrixLocal = false;
 
-			if ( this._lastMatrixLocal == null ) {
-
-				this._lastMatrixLocal = new Matrix4();
-
-			}
-
 			if ( ! force && ! this.matrix.equals( this._lastMatrixLocal ) ) {
 
 				force = true;
@@ -14753,12 +14747,6 @@ class Object3D extends EventDispatcher {
 		if ( this._checkMatrixWorld ) {
 
 			this._checkMatrixWorld = false;
-
-			if ( this._lastMatrixWorld == null ) {
-
-				this._lastMatrixWorld = new Matrix4();
-
-			}
 
 			if ( ! force && ! this.matrixWorld.equals( this._lastMatrixWorld ) ) {
 
